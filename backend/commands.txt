@@ -1,0 +1,14 @@
+### Install libraries
+
+-- pip install "fastapi[standard]"
+
+-- pip install uv
+
+
+--------------------------------------------------------------------------------------------
+
+### Backend commands
+
+-- python -m venv venv
+
+-- pip freeze > requirements.txt
