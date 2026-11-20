@@ -1,15 +1,19 @@
 @baseUrl = http://localhost:8000
 
-### Create short URL
-# POST {{baseUrl}}/api/shorten
-# Content-Type: application/json
-
-# {
-#   "url": "https://google.com"
-# }
+# ---------- Server ---------------------
 
 ### Redirect
 GET {{baseUrl}}/health
 
+# ---------- URLS ---------------------
+
+### [ Create short URL ]
+POST {{baseUrl}}/api/shorten
+Content-Type: application/json
+
+{
+  "long_url": "https://google.com"
+}
+
 ### Check rate limiter
-# GET {{baseUrl}}/api/shorten
+GET {{baseUrl}}/4x1VBC

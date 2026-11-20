@@ -1,7 +1,8 @@
 from random import random
 import secrets
 
-from fastapi import FastAPI
+from fastapi import FastAPI,status
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, HttpUrl
 
 from app.utils.base62 import decode, encode
@@ -51,8 +52,10 @@ def retrieve(code: str):
             detail="Short URL not found"
         )
 
-    return {
-        "id": id,
-        "code": code,
-        "long_url": str(long_url)
-    }
+    return RedirectResponse(url=long_url,status_code=status.HTTP_302_FOUND)
+
+    # return {
+    #     "id": id,
+    #     "code": code,
+    #     "long_url": str(long_url)
+    # }
