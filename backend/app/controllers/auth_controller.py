@@ -38,7 +38,7 @@ def register(
             "user_id" : user.id
         }
     except UsernameAlreadyExists:
-                raise HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Username already exists"
         )
@@ -64,6 +64,7 @@ def login(
     except InvalidCredentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password"
+            detail="Invalid username or password",
+            headers={"WWW-Authenticate": "Bearer"},
         )
             

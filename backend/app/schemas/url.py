@@ -1,8 +1,11 @@
+from datetime import datetime
+
 from pydantic import BaseModel, HttpUrl, field_validator
 
 
 class ShortenRequest(BaseModel):
     long_url:HttpUrl
+    user_id : int | None = None
 
     @field_validator("long_url")
     @classmethod
@@ -22,3 +25,10 @@ class ShortenResponse(BaseModel):
     message: str
     short_code: str
     short_url: str
+
+
+class UserURLResponse(BaseModel):
+    short_code: str
+    short_url: str
+    long_url: HttpUrl
+    created_at: datetime

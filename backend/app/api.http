@@ -1,19 +1,63 @@
+
 @baseUrl = http://localhost:8000
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzk1MjYyOTM5fQ.vXC0mhOpIZhCzKQ1z8___rADDkOJNCn7tjWmsj2h8qg
 
-# ---------- Server ---------------------
+@short_code = q
 
-### Redirect
+
+# ---------- SERVER ---------------------
+
+### Health check
 GET {{baseUrl}}/health
 
-# ---------- URLS ---------------------
 
-### [ Create short URL ]
-POST {{baseUrl}}/api/shorten
+# ---------- AUTHENTICATION ---------------------
+
+### Register user
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "long_url": "https://www.google.com"
+    "username": "john",
+    "email": "john@example.com",
+    "password": "secret123"
 }
 
+### Login user
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "username": "john",
+    "password": "secret123"
+}
+
+### Get current user
+GET {{baseUrl}}/auth/me
+Authorization: bearer {{access_token}}
+
+
+# ---------- URLS ---------------------
+
+### Create short URL
+POST {{baseUrl}}/api/shorten
+Content-Type: application/json
+Authorization: bearer {{access_token}}
+
+{
+    "long_url": "https://www.google.com"
+}
+
+### Redirect
+GET {{baseUrl}}/q
+
+### Get my URLs
+GET {{baseUrl}}/api/my-urls
+Authorization: bearer {{access_token}}
+
+### Delete URL
+DELETE {{baseUrl}}/api/urls/{{short_code}}
+Authorization: bearer {{access_token}}
+
 ### Check rate limiter
-GET {{baseUrl}}/a
+GET {{baseUrl}}/d

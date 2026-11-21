@@ -22,4 +22,4 @@ Content-Type: application/json
 
 ### Get current user
 GET {{baseUrl}}/auth/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzk1MjU4NzMwfQ.M9ituek-StL50xC71BTYTG4xQQUhM-dbvsEzecaEnGM
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzk1MjU4OTk1fQ.AziAs8PX1jSLoz6p_mOu_DfCxnwCwSm0MnjN--InmgY

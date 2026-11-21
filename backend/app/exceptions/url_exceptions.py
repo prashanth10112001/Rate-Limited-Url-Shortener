@@ -13,3 +13,11 @@ class ShortCodeGenerationError(Exception):
 
 class DuplicateShortCode(Exception):
     pass
+
+
+class URLExpired(Exception):
+    pass
+
+class URLAccessDenied(Exception):
+    pass
+

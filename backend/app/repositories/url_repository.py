@@ -10,10 +10,11 @@ class URLRepository:
     def __init__(self, session:Session):
         self.session = session
 
-    def create_url(self, long_url: str) -> URL:
+    def create_url(self, long_url: str, user_id:int | None = None) -> URL:
 
         url = URL(
-                long_url=str(long_url)
+                long_url=str(long_url),
+                user_id=user_id
             )
         self.session.add(url)
         self.session.flush()
@@ -34,5 +35,20 @@ class URLRepository:
 
         statement = (select(URL).where(URL.id == url_id))
         return self.session.exec(statement).first()
+
+    def get_by_user_id(self, user_id:int) -> list[URL]:
+        statement = (
+            select(URL).where(URL.user_id == user_id).order_by(URL.created_at.desc())
+        )
+
+        return list(self.session.exec(statement=statement).all())
+
+    def delete_url(self, url:URL ) -> None:
+        try:
+            self.session.delete(url)
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise
 
 
