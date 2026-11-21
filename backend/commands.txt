@@ -23,6 +23,8 @@
 
 -- APP_ENV=test uvicorn app.main:app --reload
 
+-- docker exec -it url_shortener_db psql -U user -d urlshortener
+
 
 
 
@@ -130,6 +132,23 @@ with engine.connect() as conn:
     print("Connected:", conn.execute(
         text("SELECT current_database(), current_user")
     ).one())
+'
+
+-------------------------- DATABASE CONNECTION SETUP ---------------------------------------------------
+
+python -c '
+from sqlalchemy import text
+from app.core.database import engine, get_session
+
+with engine.connect() as conn:
+    print("Engine check:", conn.execute(text("SELECT 1")).scalar())
+
+gen = get_session()
+session = next(gen)
+try:
+    print("Session check:", session.exec(text("SELECT current_database()")).scalar())
+finally:
+    gen.close()
 '
 
 -------------------------- DATABASE CONNECTION SETUP ---------------------------------------------------

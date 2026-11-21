@@ -16,4 +16,4 @@ Content-Type: application/json
 }
 
 ### Check rate limiter
-GET {{baseUrl}}/4x1VBC
+GET {{baseUrl}}/1NQ0Qt

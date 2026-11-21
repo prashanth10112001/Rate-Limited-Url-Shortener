@@ -22,15 +22,15 @@ class Settings(BaseSettings):
 
     @computed_field
     @property
-    def DATABASE_URL(self) -> PostgresDsn:
-        return PostgresDsn.build(
+    def DATABASE_URL(self) -> str:
+        return str(PostgresDsn.build(
             scheme="postgresql+psycopg2",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
             host=self.POSTGRES_HOST,
             port=self.POSTGRES_PORT,
-            path=f"/{self.POSTGRES_DB}"
-        )
+            path=self.POSTGRES_DB
+        ))
 
 
 def get_settings() -> Settings:
