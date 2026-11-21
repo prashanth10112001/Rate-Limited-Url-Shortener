@@ -8,6 +8,8 @@
 
 -- pip install pytest
 
+-- pip install "pwdlib[argon2]" pyjwt python-multipart
+
 
 --------------------------------------------------------------------------------------------
 

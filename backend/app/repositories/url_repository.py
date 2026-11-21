@@ -7,7 +7,7 @@ from app.dependencies.database import get_session
 
 class URLRepository:
 
-    def __init__(self, session:Session = Depends(get_session)):
+    def __init__(self, session:Session):
         self.session = session
 
     def create_url(self, long_url: str) -> URL:
