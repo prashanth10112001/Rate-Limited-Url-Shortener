@@ -12,8 +12,8 @@ POST {{baseUrl}}/api/shorten
 Content-Type: application/json
 
 {
-  "long_url": "https://google.com"
+  "long_url": "https://www.google.com"
 }
 
 ### Check rate limiter
-GET {{baseUrl}}/1NQ0Qt
+GET {{baseUrl}}/6

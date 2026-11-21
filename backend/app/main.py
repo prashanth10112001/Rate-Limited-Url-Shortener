@@ -1,13 +1,16 @@
 from random import random
 import secrets
 
-from fastapi import FastAPI,status
+from fastapi import Depends, FastAPI,status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, HttpUrl
+from sqlmodel import Session, select
 
 from app.utils.base62 import decode, encode
 
 from app.core.config import settings
+from app.core.database import get_session
+from app.models.urls import URL
 
 app = FastAPI()
 
@@ -25,38 +28,60 @@ in_memory = {}
 class ShortenRequest(BaseModel):
     long_url:HttpUrl
 
-@app.post("/api/shorten")
-def shorten_url(request:ShortenRequest):
-    id = secrets.randbits(32)
-    print("id ",id)
-    code = encode(id)
-    in_memory[id] = request.long_url
+@app.post("/api/shorten", status_code=status.HTTP_201_CREATED)
+def shorten_url(payload:ShortenRequest, session:Session = Depends(get_session)):
+    # id = secrets.randbits(32)
+    url = URL(
+        long_url=str(payload.long_url)
+    )
+
+    session.add(url)
+    session.flush()
+
+    url.short_code = encode(url.id)
+
+    session.add(url)
+    session.commit()
+    session.refresh(url)
+
+    print(url)
+    # code = encode(id)
+    # in_memory[id] = request.long_url
     return {
-        "short_code":code,
-        "shortURL" : f"http://localhost:8000/{code}"
+        "message": "Success",
+        "short_code":url.short_code,
+        "shortURL" : f"{settings.BASE_URL}/{url.short_code}"
     }
 
 from fastapi import HTTPException, status
 
 @app.get("/{code}")
-def retrieve(code: str):
+def retrieve(code: str, session:Session = Depends(get_session)):
     try:
-        id = decode(code)
-    except (ValueError, IndexError):
+        url_id = decode(code)
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Invalid short URL"
+            detail="URL not found"
         )
 
-    long_url = in_memory.get(id)
+    url = session.exec(select(URL).where(URL.id == url_id)).first()
 
-    if long_url is None:
+    if not url:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Short URL not found"
+            detail="URL not found"
         )
 
-    return RedirectResponse(url=long_url,status_code=status.HTTP_302_FOUND)
+    # long_url = in_memory.get(id)
+
+    # if long_url is None:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_404_NOT_FOUND,
+    #         detail="Short URL not found"
+    #     )
+
+    return RedirectResponse(url=str(url.long_url),status_code=status.HTTP_302_FOUND)
 
     # return {
     #     "id": id,
