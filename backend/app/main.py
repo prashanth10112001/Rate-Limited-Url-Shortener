@@ -7,7 +7,11 @@ from pydantic import BaseModel, HttpUrl
 
 from app.utils.base62 import decode, encode
 
+from app.core.config import settings
+
 app = FastAPI()
+
+print(settings.DATABASE_URL)
 
 @app.get("/health")
 def check_health():
