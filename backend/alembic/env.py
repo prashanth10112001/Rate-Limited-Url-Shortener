@@ -9,6 +9,7 @@ from sqlmodel import SQLModel
 from app.core.config import settings
 from app.models.urls import URL
 from app.models.user_model import User
+from app.models.url_click_model import URLClick
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

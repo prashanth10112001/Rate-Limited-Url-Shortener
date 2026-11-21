@@ -1,6 +1,6 @@
 
 @baseUrl = http://localhost:8000
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzk1MjYyOTM5fQ.vXC0mhOpIZhCzKQ1z8___rADDkOJNCn7tjWmsj2h8qg
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzk1MjY5Nzc2fQ.wQmN8YIhFAPEcHy6urMxd4d2v-ipfbMh0Eo3hKUl4FM
 
 @short_code = q
 
@@ -49,15 +49,24 @@ Authorization: bearer {{access_token}}
 }
 
 ### Redirect
-GET {{baseUrl}}/q
+GET {{baseUrl}}/u
 
 ### Get my URLs
 GET {{baseUrl}}/api/my-urls
 Authorization: bearer {{access_token}}
 
 ### Delete URL
-DELETE {{baseUrl}}/api/urls/{{short_code}}
+DELETE {{baseUrl}}/api/urls/u
 Authorization: bearer {{access_token}}
+
+# ---------- ANALYTICS ---------------------
+
+### Get URL statistics
+GET {{baseUrl}}/api/stats/u
+Authorization: Bearer {{access_token}}
+
+
+# -------- RATE LIMITER ------------------
 
 ### Check rate limiter
 GET {{baseUrl}}/d

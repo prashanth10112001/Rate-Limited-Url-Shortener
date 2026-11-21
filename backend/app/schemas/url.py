@@ -31,4 +31,11 @@ class UserURLResponse(BaseModel):
     short_code: str
     short_url: str
     long_url: HttpUrl
+    total_clicks:int
     created_at: datetime
+
+
+class URLStatsResponse(BaseModel):
+    short_code:str
+    short_url:str
+    total_clicks:int
