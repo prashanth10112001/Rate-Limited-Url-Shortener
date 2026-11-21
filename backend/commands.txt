@@ -25,6 +25,12 @@
 
 -- docker exec -it url_shortener_db psql -U user -d urlshortener
 
+-- alembic init alembic
+
+-- alembic revision --autogenerate -m "create urls table"
+
+-- alembic upgrade head
+
 
 
 
