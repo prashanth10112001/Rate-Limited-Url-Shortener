@@ -16,4 +16,4 @@ Content-Type: application/json
 }
 
 ### Check rate limiter
-GET {{baseUrl}}/6
+GET {{baseUrl}}/a

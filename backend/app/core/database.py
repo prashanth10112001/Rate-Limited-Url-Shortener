@@ -9,8 +9,6 @@ engine = create_engine(
     pool_recycle=1800
 )
 
-def get_session():
-    with Session(engine) as session:
-        yield session
+
 
 
