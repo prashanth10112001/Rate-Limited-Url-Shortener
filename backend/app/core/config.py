@@ -31,18 +31,6 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
-    # @computed_field
-    # @property
-    # def DATABASE_URL(self) -> str:
-    #     return str(PostgresDsn.build(
-    #         scheme="postgresql+psycopg2",
-    #         username=self.POSTGRES_USER,
-    #         password=self.POSTGRES_PASSWORD,
-    #         host=self.POSTGRES_HOST,
-    #         port=self.POSTGRES_PORT,
-    #         path=self.POSTGRES_DB
-    #     ))
-
 
 def get_settings() -> Settings:
     environment = os.getenv("APP_ENV","development")

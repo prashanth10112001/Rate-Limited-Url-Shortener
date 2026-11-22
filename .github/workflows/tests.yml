@@ -1,105 +1,83 @@
+
 name: Tests
 
-
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
+  pull_request:
+    branches:
+      - main
 
 jobs:
+  tests:
+    runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: backend
 
-    tests:
-
-
-        runs-on: ubuntu-latest
-
-        defaults:
-            run:
-                working-directory: backend
-
-
-        services:
-
-
-            postgres:
-
-
-                image: postgres:18
-
-
-                env:
-                    POSTGRES_USER: user
-                    POSTGRES_PASSWORD: password
-                    POSTGRES_DB: urlshortener
-               
-                ports:
-                    - 5432:5432
-               
-                options: >-
-                    --health-cmd pg_isready
-                    --health-interval 10s
-                    --health-timeout 5s
-                    --health-retries 5
-
-
-            redis:
-
-
-                image: redis:7-alpine
-
-
-                ports:
-                    - 6379:6379
-
-
-                options: >-
-                    --health-cmd "redis-cli ping"
-                    --health-interval 10s
-                    --health-timeout 5s
-                    --health-retries 5
+    services:
+      postgres:
+        image: postgres:18
         env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: urlshortener_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U user -d urlshortener_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-            DATABASE_URL: postgresql+psycopg2://user:password@localhost:5432/urlshortener_test
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-            REDIS_URL: redis://localhost:6379/1
+    env:
+      APP_ENV: test
+      BASE_URL: http://localhost:8000
 
-            SECRET_KEY: 637450077ee3671e73d359ce97d53cd7663f63f7dc3bc9d58f6b97991fcfe397
+      DATABASE_URL: postgresql+psycopg2://user:password@localhost:5432/urlshortener_test
 
-            ALGORITHM: HS256
+      REDIS_URL: redis://localhost:6379/1
 
-            ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      SECRET_KEY: test-secret-key-for-github-actions
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
 
-            RATE_LIMIT_CAPACITY: 5
+      RATE_LIMIT_CAPACITY: 5
+      RATE_LIMIT_REFILL_RATE: 1
 
-            RATE_LIMIT_REFILL_RATE: 1
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-            BASE_URL: http://localhost:8000
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
 
-        steps:
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+      - name: Run Database Migrations
+        run: |
+          alembic upgrade head
 
-            - name: Setup Python
-              uses: actions/setup-python@v5
-
-              with:
-                python-version: "3.13"
-
-            - name: Install Dependencies
-              run: |
-                python -m pip install --upgrade pip
-                pip install -r requirements.txt
-
-            - name: Run Migrations
-              run: |
-                alembic upgrade head
-
-            - name: Run Tests With Coverage
-              run: |
-                pytest --cov=app --cov-report=term
+      - name: Run Tests With Coverage
+        run: |
+          pytest --cov=app --cov-report=term-missing

@@ -1,4 +1,6 @@
 import os
+
+os.environ["APP_ENV"] = "test"
 import pytest
 
 from dotenv import load_dotenv
@@ -10,7 +12,6 @@ from app.models.url_click_model import URLClick
 from app.models.urls import URL
 from app.models.user_model import User
 
-os.environ["APP_ENV"] = "test"
 
 # LOAD TEST ENVIRONMENT BEFORE APPLICATION IMPORTS
 load_dotenv(".env.test", override=True)
