@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 
 from app.schemas.url import ShortenRequest,ShortenResponse, URLStatsResponse, UpdateExpirationRequest, UpdateExpirationResponse, UserURLResponse
@@ -43,18 +43,28 @@ def shorten_url(
 def retrieve(
     code: str, 
     request:Request,
+    background_tasks:BackgroundTasks,
     url_service:URLService = Depends(get_url_service),
     analytics_service: AnalyticsService = Depends(get_analytics_service)
     ):
     try:
         url = url_service.get_original_url(str(code))
 
-        analytics_service.record_the_click(
+        # analytics_service.record_the_click(
+        #     url_id=url.id,
+        #     ip_address=request.client.host,
+        #     user_agent=request.headers.get("user-agent",""),
+        #     referrer=request.headers.get("referer")
+        # )
+
+        background_tasks.add_task(
+            analytics_service.record_the_click,
             url_id=url.id,
             ip_address=request.client.host,
             user_agent=request.headers.get("user-agent",""),
             referrer=request.headers.get("referer")
         )
+
         return RedirectResponse(
             url=str(url.long_url),
             status_code=status.HTTP_302_FOUND
