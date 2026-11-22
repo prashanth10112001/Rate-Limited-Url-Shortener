@@ -113,7 +113,7 @@ class TestJWTToken:
                 "sub": "1",
                 "exp": datetime.now(timezone.utc) + timedelta(minutes=10)
             },
-            "wrong-secret-key-for-testing",
+            "wrong-secret-key-for-testing-123456",
             algorithm=settings.ALGORITHM
         )
 
