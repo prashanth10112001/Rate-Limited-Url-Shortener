@@ -9,6 +9,8 @@ BASE_DIR = Path(__file__).resolve().parents[3]
 
 class Settings(BaseSettings):
     BASE_URL: str
+    FRONTEND_BASE_URL: str | None = None
+    CORS_ORIGINS: str = "http://localhost:5173"
 
     DATABASE_URL : str
 

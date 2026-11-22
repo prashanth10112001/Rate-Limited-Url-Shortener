@@ -1,3 +1,6 @@
+from app.core.config import settings
+
+
 def create_url(client, long_url="https://google.com"):
     response = client.post(
         "/api/shorten",
@@ -40,6 +43,33 @@ def test_redirect_unknown_short_code(client):
     response = client.get(
         "/abc123",
         follow_redirects=False
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "URL not found"
+
+
+def test_redirect_unknown_short_code_to_frontend_for_browser(client, monkeypatch):
+    monkeypatch.setattr(settings, "FRONTEND_BASE_URL", "http://localhost:5173")
+
+    response = client.get(
+        "/abc123",
+        headers={"Accept": "text/html"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert response.headers["location"] == "http://localhost:5173/url-not-found"
+    assert "accept" in response.headers["vary"].lower()
+
+
+def test_redirect_unknown_short_code_keeps_api_response(client, monkeypatch):
+    monkeypatch.setattr(settings, "FRONTEND_BASE_URL", "http://localhost:5173")
+
+    response = client.get(
+        "/abc123",
+        headers={"Accept": "application/json"},
+        follow_redirects=False,
     )
 
     assert response.status_code == 404

@@ -1,4 +1,6 @@
-from sqlalchemy import func
+from datetime import datetime
+
+from sqlalchemy import String, cast, func, or_
 from sqlmodel import Session, select
 
 from app.models.url_click_model import URLClick
@@ -28,10 +30,52 @@ class URLClickRepository:
 
         return click
 
-    def get_clicks_by_url_id(self, url_id:int) -> list[URLClick]:
-        statement = (select(URLClick).where(URLClick.url_id == url_id).order_by(URLClick.clicked_at.desc()))
+    def get_clicks_by_url_id(
+        self,
+        url_id: int,
+        limit: int,
+        offset: int,
+        search: str | None,
+        sort_by: str,
+        sort_direction: str,
+    ) -> tuple[list[URLClick], int]:
+        conditions = [URLClick.url_id == url_id]
+        if search:
+            search_term = f"%{search}%"
+            searchable_columns = [
+                cast(column, String).ilike(search_term)
+                for column in URLClick.__table__.columns
+            ]
+            conditions.append(or_(*searchable_columns))
 
-        return list(self.session.exec(statement).all())
+        sort_column = URLClick.__table__.columns[sort_by]
+        sort_expression = sort_column.desc() if sort_direction == "desc" else sort_column.asc()
+        total = self.session.exec(
+            select(func.count())
+            .select_from(URLClick)
+            .where(*conditions)
+        ).one()
+        statement = (
+            select(URLClick)
+            .where(*conditions)
+            .order_by(sort_expression, URLClick.id.desc())
+        )
+        records = list(
+            self.session.exec(statement.offset(offset).limit(limit)).all()
+        )
+
+        return records, total
+
+    def get_click_summary(
+        self, url_id: int
+    ) -> tuple[int, datetime | None, int]:
+        statement = select(
+            func.count(URLClick.id),
+            func.max(URLClick.clicked_at),
+            func.count(func.distinct(URLClick.ip_address)),
+        ).where(URLClick.url_id == url_id)
+        total, last_click_at, unique_visitors = self.session.exec(statement).one()
+        return total, last_click_at, unique_visitors
 
     def get_click_count_by_url_id(self,url_id:int) -> int:
         statement = (select(func.count()).select_from(URLClick).where(URLClick.url_id == url_id))

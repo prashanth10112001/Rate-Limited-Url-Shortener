@@ -41,6 +41,24 @@ class URLStatsResponse(BaseModel):
     short_code:str
     short_url:str
     total_clicks:int
+    last_click_at: datetime | None = None
+    unique_visitors: int | None = None
+
+
+class URLClickResponse(BaseModel):
+    id: int
+    url_id: int
+    ip_address: str
+    user_agent: str
+    referrer: str | None
+    clicked_at: datetime
+
+
+class URLClickPageResponse(BaseModel):
+    items: list[URLClickResponse]
+    total: int
+    limit: int
+    offset: int
 
 
 class UpdateExpirationRequest(BaseModel):

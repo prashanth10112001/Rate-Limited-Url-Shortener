@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
+from app.core.config import settings
+
 
 def register_user(client):
     client.post(
@@ -58,6 +60,37 @@ def test_expired_url_returns_410(client):
 
     assert redirect_response.status_code == 410
     assert redirect_response.json()["detail"] == "URL has expired"
+
+
+def test_expired_url_redirects_to_frontend_for_browser(client, monkeypatch):
+    register_user(client)
+    headers = auth_headers(client)
+    expired_time = (
+        datetime.now(timezone.utc)
+        - timedelta(minutes=1)
+    ).isoformat()
+    create_response = client.post(
+        "/api/shorten",
+        json={"long_url": "https://google.com"},
+        headers=headers,
+    )
+    code = create_response.json()["short_code"]
+    expiration_response = client.patch(
+        f"/api/urls/{code}/expiration",
+        json={"expires_at": expired_time},
+        headers=headers,
+    )
+    assert expiration_response.status_code == 200
+    monkeypatch.setattr(settings, "FRONTEND_BASE_URL", "http://localhost:5173")
+
+    response = client.get(
+        f"/{code}",
+        headers={"Accept": "text/html"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert response.headers["location"] == "http://localhost:5173/url-expired"
 
 
 def test_future_expiration_still_redirects(client):

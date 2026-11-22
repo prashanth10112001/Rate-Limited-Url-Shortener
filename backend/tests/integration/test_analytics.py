@@ -75,6 +75,8 @@ def test_stats_after_single_click(client):
 
     assert response.status_code == 200
     assert response.json()["total_clicks"] == 1
+    assert response.json()["unique_visitors"] == 1
+    assert response.json()["last_click_at"] is not None
 
 def test_stats_after_multiple_clicks(client):
     register_user(client)
@@ -167,3 +169,90 @@ def test_my_urls_contains_click_count(client):
 
     assert "total_clicks" in url
     assert url["total_clicks"] == 3
+
+
+def test_click_records_return_all_fields_to_owner(client):
+    register_user(client)
+    headers = auth_headers(client)
+    code = create_url(client, headers)
+
+    client.get(
+        f"/{code}",
+        headers={
+            "User-Agent": "Analytics test client",
+            "Referer": "https://referrer.example/",
+        },
+        follow_redirects=False,
+    )
+
+    response = client.get(
+        f"/api/stats/{code}/clicks",
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    records = response.json()["items"]
+    assert len(records) == 1
+    assert set(records[0]) == {
+        "id",
+        "url_id",
+        "ip_address",
+        "user_agent",
+        "referrer",
+        "clicked_at",
+    }
+    assert records[0]["user_agent"] == "Analytics test client"
+    assert records[0]["referrer"] == "https://referrer.example/"
+    assert response.json()["total"] == 1
+
+
+def test_click_records_support_search_sort_and_pagination(client):
+    register_user(client)
+    headers = auth_headers(client)
+    code = create_url(client, headers)
+
+    for index in range(3):
+        client.get(
+            f"/{code}",
+            headers={"User-Agent": f"Analytics client {index}"},
+            follow_redirects=False,
+        )
+
+    response = client.get(
+        f"/api/stats/{code}/clicks",
+        params={
+            "limit": 1,
+            "offset": 1,
+            "search": "Analytics client",
+            "sort_by": "id",
+            "sort_direction": "asc",
+        },
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 3
+    assert len(response.json()["items"]) == 1
+    assert response.json()["items"][0]["user_agent"] == "Analytics client 1"
+
+
+def test_click_records_require_url_owner(client):
+    register_user(client, "john")
+    owner_headers = auth_headers(client, "john")
+    code = create_url(client, owner_headers)
+
+    register_user(client, "alice")
+    alice_headers = auth_headers(client, "alice")
+
+    response = client.get(
+        f"/api/stats/{code}/clicks",
+        headers=alice_headers,
+    )
+
+    assert response.status_code == 403
+
+
+def test_click_records_require_authentication(client):
+    response = client.get("/api/stats/anything/clicks")
+
+    assert response.status_code == 401

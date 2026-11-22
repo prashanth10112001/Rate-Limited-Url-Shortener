@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from sqlmodel import Session
 
+from app.models.url_click_model import URLClick
 from app.repositories.url_click_repository import URLClickRepository
 from app.logging.logger import get_logger
 
@@ -36,6 +39,41 @@ class AnalyticsService:
         except Exception:
             logger.exception(
                 "FAILED TO RETRIEVE CLICK COUNT FOR URL ID: %s", url_id
+            )
+            raise
+
+    def get_clicks_by_url_id(
+        self,
+        url_id: int,
+        limit: int,
+        offset: int,
+        search: str | None,
+        sort_by: str,
+        sort_direction: str,
+    ) -> tuple[list[URLClick], int]:
+        try:
+            return self.repository.get_clicks_by_url_id(
+                url_id=url_id,
+                limit=limit,
+                offset=offset,
+                search=search,
+                sort_by=sort_by,
+                sort_direction=sort_direction,
+            )
+        except Exception:
+            logger.exception(
+                "FAILED TO RETRIEVE CLICK RECORDS FOR URL ID: %s", url_id
+            )
+            raise
+
+    def get_click_summary(
+        self, url_id: int
+    ) -> tuple[int, datetime | None, int]:
+        try:
+            return self.repository.get_click_summary(url_id=url_id)
+        except Exception:
+            logger.exception(
+                "FAILED TO RETRIEVE CLICK SUMMARY FOR URL ID: %s", url_id
             )
             raise
 
