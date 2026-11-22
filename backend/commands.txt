@@ -12,6 +12,8 @@
 
 -- pip install redis
 
+-- pip install pytest-cov
+
 
 --------------------------------------------------------------------------------------------
 
@@ -36,6 +38,15 @@
 -- alembic upgrade head
 
 -- git rm -r --cached .
+
+-- pytest tests/unit/test_base62.py -v
+
+-- pytest tests/integration -v
+
+Tests Final Order
+- pytest -v
+- pytest --cov=app --cov-report=term-missing
+- pytest --cov=app --cov-report=html
 
 
 

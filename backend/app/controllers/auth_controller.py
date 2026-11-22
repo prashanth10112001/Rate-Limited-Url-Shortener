@@ -34,7 +34,7 @@ def register(
         )
 
         return {
-            "message" : "user registered successfully",
+            "message" : "User registered successfully",
             "user_id" : user.id
         }
     except UsernameAlreadyExists:

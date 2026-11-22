@@ -1,6 +1,6 @@
 
 @baseUrl = http://localhost:8000
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzk1MzQ4MjQyfQ.MmP8mBlEg1oVIiius894hsn2iypQd4fFsuADx9qL2Sg
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzk1MzUzNjk2fQ.NdLUwVybE_cIpY8cIcn7Z5pyyGHHXIK5nyJbunVj8_g
 
 @short_code = q
 
@@ -42,7 +42,7 @@ Authorization: bearer {{access_token}}
 ### Create short URL
 POST {{baseUrl}}/api/shorten
 Content-Type: application/json
-Authorization: bearer {{access_token}}
+# Authorization: bearer {{access_token}}
 
 {
     "long_url": "https://www.google.com"
@@ -57,7 +57,7 @@ GET {{baseUrl}}/api/my-urls
 Authorization: bearer {{access_token}}
 
 ### Delete URL
-DELETE {{baseUrl}}/api/urls/v
+DELETE {{baseUrl}}/api/urls/2L
 Authorization: bearer {{access_token}}
 
 ### Update URL expiration
