@@ -10,6 +10,8 @@
 
 -- pip install "pwdlib[argon2]" pyjwt python-multipart
 
+-- pip install redis
+
 
 --------------------------------------------------------------------------------------------
 

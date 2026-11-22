@@ -3,11 +3,11 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 
-from app.schemas.url import ShortenRequest,ShortenResponse, URLStatsResponse, UserURLResponse
+from app.schemas.url import ShortenRequest,ShortenResponse, URLStatsResponse, UpdateExpirationRequest, UpdateExpirationResponse, UserURLResponse
 from app.services.url_service import URLService
 from app.dependencies.url_service import get_url_service
 from app.core.config import settings
-from app.exceptions.url_exceptions import URLAccessDenied, URLCreationError,URLNotFound
+from app.exceptions.url_exceptions import URLAccessDenied, URLCreationError, URLExpired,URLNotFound
 from app.schemas.auth_schema import UserResponse
 from app.dependencies.auth import get_current_user, get_optional_user
 from app.models.user_model import User
@@ -55,6 +55,10 @@ def retrieve(
             user_agent=request.headers.get("user-agent",""),
             referrer=request.headers.get("referer")
         )
+        return RedirectResponse(
+            url=str(url.long_url),
+            status_code=status.HTTP_302_FOUND
+            )
 
     except URLNotFound:
         raise HTTPException(
@@ -62,7 +66,12 @@ def retrieve(
             detail="URL not found"
         )
 
-    return RedirectResponse(url=str(url.long_url),status_code=status.HTTP_302_FOUND)
+    except URLExpired:
+        raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="URL has expired"
+        )
+
 
 
 @url_controller.get("/api/my-urls", response_model=list[UserURLResponse])
@@ -77,6 +86,7 @@ def get_my_urls(
 
     click_counts = (analytics_service.get_click_counts(url_ids=url_ids))
 
+    now = datetime.now(timezone.utc)
 
     return [  
         UserURLResponse(
@@ -85,6 +95,8 @@ def get_my_urls(
             long_url=url.long_url,
             total_clicks=click_counts.get(url.id,0),
             created_at=url.created_at,
+            expires_at=url.expires_at,
+            is_expired=(url.expires_at is not None and now>=url.expires_at)
         ) for url in urls ]
 
 @url_controller.get("/api/stats/{code}", response_model=URLStatsResponse)
@@ -139,4 +151,34 @@ def delete_url(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have access to this URL"
         )
-    
+
+
+@url_controller.patch("/api/urls/{code}/expiration",response_model=UpdateExpirationResponse)
+def update_expiration(
+    code : str,
+    payload:UpdateExpirationRequest,
+    current_user: User = Depends(get_current_user),
+    url_service : URLService = Depends(get_url_service)
+):
+    try:
+        url = url_service.update_expiration(
+            code=str(code),
+            current_user_id=current_user.id,
+            expires_at=payload.expires_at
+        )
+
+        return UpdateExpirationResponse(
+            message="Expiration Updated Successfully",
+            expires_at=url.expires_at
+        )
+
+    except URLNotFound:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="URL not found"
+        )
+    except URLAccessDenied:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this URL"
+        )

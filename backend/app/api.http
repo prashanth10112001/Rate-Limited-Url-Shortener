@@ -1,6 +1,6 @@
 
 @baseUrl = http://localhost:8000
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzk1MjY5Nzc2fQ.wQmN8YIhFAPEcHy6urMxd4d2v-ipfbMh0Eo3hKUl4FM
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzk1MzQxNTczfQ.frEB0ElCYunrP4uHf2L80PMXxvJq3LBM8ApZnlWjWbA
 
 @short_code = q
 
@@ -49,20 +49,29 @@ Authorization: bearer {{access_token}}
 }
 
 ### Redirect
-GET {{baseUrl}}/u
+GET {{baseUrl}}/v
 
 ### Get my URLs
 GET {{baseUrl}}/api/my-urls
 Authorization: bearer {{access_token}}
 
 ### Delete URL
-DELETE {{baseUrl}}/api/urls/u
+DELETE {{baseUrl}}/api/urls/v
 Authorization: bearer {{access_token}}
+
+### Update URL expiration
+PATCH {{baseUrl}}/api/urls/w/expiration
+Content-Type: application/json
+Authorization: bearer {{access_token}}
+
+{
+    "expires_at" : "2026-12-31T23:59:59Z"
+}
 
 # ---------- ANALYTICS ---------------------
 
 ### Get URL statistics
-GET {{baseUrl}}/api/stats/u
+GET {{baseUrl}}/api/stats/w
 Authorization: Bearer {{access_token}}
 
 
