@@ -42,7 +42,7 @@ Authorization: bearer {{access_token}}
 ### Create short URL
 POST {{baseUrl}}/api/shorten
 Content-Type: application/json
-Authorization: bearer {{access_token}}
+# Authorization: bearer {{access_token}}
 
 {
     "long_url": "https://www.google.com"

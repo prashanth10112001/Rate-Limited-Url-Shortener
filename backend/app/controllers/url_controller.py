@@ -13,6 +13,7 @@ from app.dependencies.auth import get_current_user, get_optional_user
 from app.models.user_model import User
 from app.dependencies.analytics_service import get_analytics_service
 from app.services.analytics_service import AnalyticsService
+from app.rate_limiters.token_bucket import TokenBucket, get_rate_limiter
 
 
 url_controller = APIRouter(
@@ -21,10 +22,22 @@ url_controller = APIRouter(
 
 @url_controller.post("/api/shorten", response_model=ShortenResponse , status_code=status.HTTP_201_CREATED)
 def shorten_url(
+    request:Request,
     payload:ShortenRequest,
     url_service:URLService = Depends(get_url_service),
-    current_user: User | None = Depends(get_optional_user)
+    current_user: User | None = Depends(get_optional_user),
+    rate_limiter:TokenBucket = Depends(get_rate_limiter)
     ):
+
+    ip_address = request.client.host
+
+    if not rate_limiter.allow_request(ip_address=ip_address):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Rate limit exceeded. Please try again later."
+        )
+
+
     try:
         user_id = ( current_user.id if current_user else None )
         short_code = url_service.generate_short_url(long_url=str(payload.long_url),user_id=user_id)

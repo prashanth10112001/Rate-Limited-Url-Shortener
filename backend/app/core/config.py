@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
     REDIS_URL: str
+    RATE_LIMIT_CAPACITY: int
+    RATE_LIMIT_REFILL_RATE: float
 
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
