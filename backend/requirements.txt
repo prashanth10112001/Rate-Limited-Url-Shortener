@@ -10,6 +10,7 @@ cffi==2.1.1
 charset-normalizer==3.5.2
 click==8.5.1
 colorama==0.4.6
+coverage==7.17.4
 detect-installer==0.2.1
 dnspython==2.9.2
 email-validator==2.4.0
@@ -54,6 +55,7 @@ pydantic_core==2.50.5
 Pygments==2.21.0
 PyJWT==2.15.1
 pytest==9.2.0
+pytest-cov==7.1.0
 python-dotenv==1.2.4
 python-multipart==0.0.34
 PyYAML==6.0.3
