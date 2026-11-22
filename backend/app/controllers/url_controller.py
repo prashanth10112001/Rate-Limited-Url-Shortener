@@ -13,7 +13,8 @@ from app.dependencies.auth import get_current_user, get_optional_user
 from app.models.user_model import User
 from app.dependencies.analytics_service import get_analytics_service
 from app.services.analytics_service import AnalyticsService
-from app.rate_limiters.token_bucket import TokenBucket, get_rate_limiter
+# from app.rate_limiters.token_bucket import TokenBucket, get_rate_limiter
+from app.rate_limiters.redis_token_bucket import RedisTokenBucket, get_rate_limiter
 
 
 url_controller = APIRouter(
@@ -26,7 +27,8 @@ def shorten_url(
     payload:ShortenRequest,
     url_service:URLService = Depends(get_url_service),
     current_user: User | None = Depends(get_optional_user),
-    rate_limiter:TokenBucket = Depends(get_rate_limiter)
+    # rate_limiter:TokenBucket = Depends(get_rate_limiter)
+    rate_limiter:RedisTokenBucket = Depends(get_rate_limiter)
     ):
 
     ip_address = request.client.host
