@@ -25,6 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+logger.info(f"Loaded CORS_ORIGINS: {settings.CORS_ORIGINS}")
 @app.get("/health")
 def check_health():
     try:
